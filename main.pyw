@@ -104,7 +104,7 @@ class UiDialog(QDialog):
         self.label_4.setObjectName("label_4")
 
         self.retranslate_ui(self)
-        #QtCore.QMetaObject.connectSlotsByName(self)
+        QtCore.QMetaObject.connectSlotsByName(self)
 
         self.show()
 
@@ -142,10 +142,10 @@ class UiDialog(QDialog):
                     try:
                         self.ps.close()
                         self.rm.close()
+                        self.sc.cancel(self.event)
                     except Exception as e:
                         print(e)
                     else:
-                        self.sc.cancel(self.event)
                         self.textEdit.insertPlainText('0.000')
                         self.textEdit_2.insertPlainText('0.000')
                         self.connected = False
