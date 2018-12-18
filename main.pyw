@@ -1,16 +1,15 @@
 import sys
 import visa
-import sched
-import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtCore import QTimer
 
 
 class PowerSupplyCommands:
-    OUTPUT_ON = 'OUTP ON'
-    OUTPUT_OFF = 'OUTP OFF'
-    SET_VOLTAGE_1 = 'VOLT1 3.80'
-    SET_VOLTAGE_2 = 'VOLT2 5.00'
+    OUTPUT_ON = 'OUTP1 ON'
+    OUTPUT_OFF = 'OUTP1 OFF'
+    SET_VOLTAGE_1 = 'VOLT1 4'
+    SET_VOLTAGE_2 = 'VOLT2 5'
     COUPLE_ALL = 'INST:COUP:OUTP:STAT ALL'
     DISPLAY_CH1 = 'DISP:CHAN 1'
     DISPLAY_CH2 = 'DISP:CHAN 2'
@@ -23,10 +22,12 @@ class UiDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.connected = False
-        self.ps = None
+        # self.ps = None
         self.event = None
-        self.rm = visa.ResourceManager()
-        self.sc = sched.scheduler(time.time, time.sleep)
+        # self.rm = visa.ResourceManager()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.read_ps_current)
+        self.timer.start(500)
 
         QDialog.setObjectName(self, "Dialog")
         QDialog.resize(self, 400, 315)
@@ -126,12 +127,12 @@ class UiDialog(QDialog):
         if port_cmd:
             if connect_on:
                 try:
-                    self.ps = self.rm.open_resource(PowerSupplyCommands.ADDRESS)
-                    self.ps.write(PowerSupplyCommands.COUPLE_ALL)
-                    self.ps.write(PowerSupplyCommands.SET_VOLTAGE_1)
-                    self.ps.write(PowerSupplyCommands.SET_VOLTAGE_2)
-                    self.ps.write(PowerSupplyCommands.DISPLAY_CH2)
-                    self.event = self.sc.enter(0.5, 1, self.read_ps_current)
+                    UiDialog.rm = visa.ResourceManager()
+                    UiDialog.ps = UiDialog.rm.open_resource(PowerSupplyCommands.ADDRESS)
+                    UiDialog.ps.write(PowerSupplyCommands.COUPLE_ALL)
+                    UiDialog.ps.write(PowerSupplyCommands.SET_VOLTAGE_1)
+                    UiDialog.ps.write(PowerSupplyCommands.SET_VOLTAGE_2)
+                    UiDialog.ps.write(PowerSupplyCommands.DISPLAY_CH2)
                 except Exception as e:
                     print(e)
                 else:
@@ -140,9 +141,8 @@ class UiDialog(QDialog):
             else:
                 if self.connected:
                     try:
-                        self.ps.close()
-                        self.rm.close()
-                        self.sc.cancel(self.event)
+                        UiDialog.ps.close()
+                        UiDialog.rm.close()
                     except Exception as e:
                         print(e)
                     else:
