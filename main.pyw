@@ -3,6 +3,7 @@ import visa
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QTextCursor
 
 
 class PowerSupplyCommands:
@@ -13,7 +14,7 @@ class PowerSupplyCommands:
     COUPLE_ALL = 'INST:COUP:OUTP:STAT ALL'
     DISPLAY_CH1 = 'DISP:CHAN 1'
     DISPLAY_CH2 = 'DISP:CHAN 2'
-    ADDRESS = 'GPIB0::6::INSTR'
+    ADDRESS = 'GPIB0::3::INSTR'
     GET_CURRENT_CH1 = 'MEAS:CURR1?'
     GET_CURRENT_CH2 = 'MEAS:CURR2?'
 
@@ -156,12 +157,12 @@ class UiDialog(QDialog):
             if self.connected:
                 if output_on:
                     try:
-                        self.ps.write(PowerSupplyCommands.OUTPUT_ON)
+                        UiDialog.ps.write(PowerSupplyCommands.OUTPUT_ON)
                     except Exception as e:
                         print(e)
                 else:
                     try:
-                        self.ps.write(PowerSupplyCommands.OUTPUT_OFF)
+                        UiDialog.ps.write(PowerSupplyCommands.OUTPUT_OFF)
                     except Exception as e:
                         print(e)
             else:
@@ -169,8 +170,11 @@ class UiDialog(QDialog):
 
     def read_ps_current(self):
         if self.connected:
+            
             self.textEdit.insertPlainText(str(self.ps.query(PowerSupplyCommands.GET_CURRENT_CH1)))
+            self.textEdit.moveCursor(QTextCursor.End)
             self.textEdit_2.insertPlainText(str(self.ps.query(PowerSupplyCommands.GET_CURRENT_CH2)))
+            self.textEdit_2.moveCursor(QTextCursor.End)
         else:
             pass
 
