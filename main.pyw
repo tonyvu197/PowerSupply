@@ -121,8 +121,8 @@ class UiDialog(QDialog):
         self.pushButton_3.setText(_translate("Dialog", "Connect"))
         self.pushButton_4.setText(_translate("Dialog", "Disconnect"))
         self.label_4.setText(_translate("Dialog", "Disconnected from Power Supply"))
-        self.textEdit.insertPlainText(_translate("Dialog", "0.000"))
-        self.textEdit_2.insertPlainText(_translate("Dialog", "0.000"))
+        self.textEdit.insertPlainText(_translate("Dialog", "0.000\n"))
+        self.textEdit_2.insertPlainText(_translate("Dialog", "0.000\n"))
 
     def power_supply_commands(self, port_cmd=False, output_on=False, connect_on=False):
         if port_cmd:
@@ -147,8 +147,8 @@ class UiDialog(QDialog):
                     except Exception as e:
                         print(e)
                     else:
-                        self.textEdit.insertPlainText('0.000')
-                        self.textEdit_2.insertPlainText('0.000')
+                        self.textEdit.insertPlainText('0.000\n')
+                        self.textEdit_2.insertPlainText('0.000\n')
                         self.connected = False
                         self.label_4.setText('Disconnected from Power Supply')
                 else:
@@ -170,10 +170,13 @@ class UiDialog(QDialog):
 
     def read_ps_current(self):
         if self.connected:
-            
-            self.textEdit.insertPlainText(str(self.ps.query(PowerSupplyCommands.GET_CURRENT_CH1)))
+            curr1_1, curr1_2 = str(self.ps.query(PowerSupplyCommands.GET_CURRENT_CH1)).split('.')
+            curr1 = '0.' + curr1_1[1:1] + curr1_2[:2] + '\n'
+            curr2_1, curr2_2 = str(self.ps.query(PowerSupplyCommands.GET_CURRENT_CH2)).split('.')
+            curr2 = '0.' + curr2_1 + curr2_2[:2] + '\n'
+            self.textEdit.insertPlainText(curr1)
             self.textEdit.moveCursor(QTextCursor.End)
-            self.textEdit_2.insertPlainText(str(self.ps.query(PowerSupplyCommands.GET_CURRENT_CH2)))
+            self.textEdit_2.insertPlainText(curr2)
             self.textEdit_2.moveCursor(QTextCursor.End)
         else:
             pass
